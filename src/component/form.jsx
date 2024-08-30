@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useStyles from "./style.js";
 import {
   Container,
@@ -6,8 +7,8 @@ import {
   Typography,
   TextField,
   Button,
-  Link,
   MenuItem,
+  IconButton,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -21,12 +22,12 @@ import {
 } from "@mui/material";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
-
-const DAYJS_CODEC = {
-  parse: (dateString) => dayjs(dateString),
-  stringify: (date) => date.toISOString(),
-};
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+// const DAYJS_CODEC = {
+//   parse: (dateString) => dayjs(dateString),
+//   stringify: (date) => date.toISOString(),
+// };
 
 const Form = () => {
   const classes = useStyles();
@@ -74,10 +75,36 @@ const Form = () => {
       setFormData({ ...formData, image: file, imageUrl });
     }
   };
+  //input name
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Adding Education
+  const [educationList, setEducationList] = useState([{ value: "" }]);
+  const handleEducationChange = (index, event) => {
+    const values = [...educationList];
+    values[index].value = event.target.value;
+    setEducationList(values);
+  };
+
+  const handleAddField = (e) => {
+    e.preventDefault()
+    debugger;
+    setEducationList([...educationList, { value: "" }]);
+  };
+
+  const handleRemoveField = (index) => {
+    const values = [...educationList];
+    values.splice(index, 1);
+    setEducationList(values);
+  };
 
   //form Submit
   const handleSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     localStorage.setItem("user", JSON.stringify(formData));
     navigate("/login");
   };
@@ -92,7 +119,7 @@ const Form = () => {
         >
           Registration Form
         </Typography>
-        <form action="" onClick={handleSubmit}>
+        <form >
           <TextField
             className="name"
             label="Name :"
@@ -102,7 +129,8 @@ const Form = () => {
             name="name"
             fullWidth
             value={formData.name}
-            onChange={handleChange}
+            // onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
           <TextField
@@ -157,13 +185,17 @@ const Form = () => {
               placeholder="Enter your Mobile No."
               name="mobile"
               value={formData.mobile}
-            onChange={handleChange}
+              onChange={handleChange}
               required
             />
           </div>
 
-          <FormControl name="gender" className="gender" value={formData.gender}
-            onChange={handleChange}>
+          <FormControl
+            name="gender"
+            className="gender"
+            value={formData.gender}
+            onChange={handleChange}
+          >
             <FormLabel id="demo-row-radio-buttons-group-label" required>
               Gender :
             </FormLabel>
@@ -195,7 +227,7 @@ const Form = () => {
               name="fatherName"
               fullWidth
               value={formData.fatherName}
-            onChange={handleChange}
+              onChange={handleChange}
               required
             />
             <TextField
@@ -206,12 +238,12 @@ const Form = () => {
               name="motherNames"
               fullWidth
               value={formData.motherName}
-            onChange={handleChange}
+              onChange={handleChange}
               required
             />
           </div>
 
-          <TextField
+          {/* <TextField
             className="edu"
             label="Education"
             variant="standard"
@@ -221,7 +253,35 @@ const Form = () => {
             value={formData.education}
             onChange={handleChange}
             required
-          />
+          /> */}
+
+          {educationList.map((education, index) => (
+            <Box
+              key={index}
+              sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}
+            >
+              <TextField
+                label={`Education ${index + 1}`}
+                value={education.value}
+                onChange={(event) => handleEducationChange(index, event)}
+                fullWidth
+                margin="normal"
+                variant="standard"
+                sx={{position: 'relative'}}
+              />
+          
+              <IconButton onClick={handleAddField} aria-label="add">
+                <AddCircleOutlineIcon />
+              </IconButton>
+              {educationList.length > 1 && (
+              <IconButton onClick={() => handleRemoveField(index)} aria-label="remove">
+                 <RemoveCircleOutlineIcon />
+              </IconButton>
+              )}
+              
+            
+            </Box>
+          ))}
 
           <TextField
             className="sName"
@@ -261,7 +321,7 @@ const Form = () => {
               variant="standard"
               className={classes.city}
               value={formData.city}
-            onChange={handleChange}
+              onChange={handleChange}
             />
             <TextField
               label="PIN :"
@@ -269,7 +329,7 @@ const Form = () => {
               variant="standard"
               className={classes.pin}
               value={formData.pin}
-            onChange={handleChange}
+              onChange={handleChange}
             />
           </div>
 
@@ -281,7 +341,7 @@ const Form = () => {
               placeholder="Enter Your Country"
               name="country"
               value={formData.country}
-            onChange={handleChange}
+              onChange={handleChange}
               required
             />
             <TextField
@@ -291,7 +351,7 @@ const Form = () => {
               placeholder="Enter Your Aadhar Number"
               name="aadhar"
               value={formData.aadhar}
-            onChange={handleChange}
+              onChange={handleChange}
               required
             />
           </div>
@@ -304,7 +364,7 @@ const Form = () => {
               placeholder="Enter Your Profession"
               name="job"
               value={formData.job}
-            onChange={handleChange}
+              onChange={handleChange}
             />
             <TextField
               className="salary"
@@ -313,7 +373,7 @@ const Form = () => {
               placeholder="Enter Your Salary"
               name="salary"
               value={formData.salary}
-            onChange={handleChange}
+              onChange={handleChange}
             />
           </div>
 
@@ -351,6 +411,7 @@ const Form = () => {
             variant="contained"
             size="medium"
             sx={{ padding: "6px 50px", marginBlock: "5px" }}
+            onClick={handleSubmit}
           >
             Submit
           </Button>
