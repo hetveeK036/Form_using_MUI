@@ -101,13 +101,26 @@ const useStyles = makeStyles((theme) => ({
           width: '100%',
       }
     },
+    // Targeting profestion and Salary component
+    job_salary: {
+      display: "flex",
+      flexDirection: "row",
+      gap: "25px",
+
+      '& .css-1u3bzj6-MuiFormControl-root-MuiTextField-root ': {
+          width: '100%',
+      }
+    },
     // Targeting image 
     image : {
       width: '200px',
       height: '200px',
       objectFit: 'contain',
-    }
+    },
 
+    // Login Form
+
+    
 }));
 
 export default useStyles;
