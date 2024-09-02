@@ -17,12 +17,18 @@ const useStyles = makeStyles((theme) => ({
     // Targeting the input element within TextField for margin
     "& .MuiInputBase-input": {
       marginBlock: "5px",
-      padding: "10px ",
+      padding: "15px 10px 5px 10px  ",
       height: "10px",
       width: '100%',
     }, 
+    '& .css-953pxc-MuiInputBase-root-MuiInput-root':{
+      marginTop: '5px',
+    },
     '& .MuiFormLabel-root': {
       marginInline: '4px',
+    },
+    '& .css-1eed5fa-MuiInputBase-root-MuiInput-root ': {
+      marginTop: '0px',
     },
       
     // Targeting the asterisk for required fields
@@ -44,43 +50,38 @@ const useStyles = makeStyles((theme) => ({
         marginInline: "5px 15px",
         fontWeight: "600",
       },
+      
     },
-  },
-  //Targeting Birth-date and mobile number
-  bday_mobile: {
-    display: "flex",
-    flexDirection: "row",
-    gap: "25px",
-
-    "& .css-11a8txn-MuiStack-root": {
-      width: "270px",
-    },
-    "& .css-1u3bzj6-MuiFormControl-root-MuiTextField-root": {
-      width: "50%",  //270px
-    },
-  },
-
-  // Targeting Parents component
-  parents: {
-    display: "flex",
-    flexDirection: "row",
-    gap: "25px",
-  },
-      // Targeting Address
-      address: {
-        width: "100%",
-        padding: "11px",
-        borderRadius: "4px",
-        border: "1px solid rgba(0, 0, 0, 0.23)",
-        fontFamily: "Arial, sans-serif",
-        // fontSize: "1rem",
-        // lineHeight: "1.4375em",
-        // letterSpacing: "0.00938em",
-        // marginBlock: "5px",
-
     
-      },
+  },
+    //Targeting Birth-date and mobile number
+    bday_mobile: {
+      display: "flex",
+      flexDirection: "row",
+      gap: "25px",
 
+      // adjusting width of birthday field
+      '& .css-z3c6am-MuiFormControl-root-MuiTextField-root': {
+        width: '100%',
+        '& .css-1eed5fa-MuiInputBase-root-MuiInput-root': {
+          height: '45px'
+        }
+      },
+    },
+    // Targeting Parents component
+    parents: {
+      display: "flex",
+      flexDirection: "row",
+      gap: "25px",
+    },
+   // Targeting Addres  
+    address: {
+      width: "100%",
+      padding: "11px",
+      borderRadius: "4px",
+      border: "1px solid rgba(0, 0, 0, 0.23)",
+      fontFamily: "Arial, sans-serif",
+    },
     //Targeting City and Pin
     city_pin : {
       display: "flex",
@@ -101,7 +102,7 @@ const useStyles = makeStyles((theme) => ({
           width: '100%',
       }
     },
-    // Targeting profestion and Salary component
+    // Targeting profession and Salary component
     job_salary: {
       display: "flex",
       flexDirection: "row",

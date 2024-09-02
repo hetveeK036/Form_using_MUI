@@ -43,9 +43,9 @@ const Form = () => {
     fatherName: "",
     motherName: "",
     education: "",
-    // additionalEducation: '',
+    additionalEducation: "",
     children: "",
-    // additionalChildren: '',
+    additionalChildren: "",
     address: "",
     city: "",
     pin: "",
@@ -75,6 +75,15 @@ const Form = () => {
       setFormData({ ...formData, image: file, imageUrl });
     }
   };
+  const truncateUrl = (url, length) => {
+    if (url.length <= length) {
+      return url;
+    }
+    const start = url.substring(0, length / 2);
+    const end = url.substring(url.length - length / 2, url.length);
+    return `${start}...${end}`;
+  };
+  const maxLength = 20; // maximum length of URL
   //input name
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,11 +96,13 @@ const Form = () => {
     const values = [...educationList];
     values[index].value = event.target.value;
     setEducationList(values);
+
+    console.log("education list :", educationList);
+    console.log("education set value :", setEducationList(values));
   };
 
   const handleAddField = (e) => {
-    e.preventDefault()
-    debugger;
+    e.preventDefault();
     setEducationList([...educationList, { value: "" }]);
   };
 
@@ -99,6 +110,32 @@ const Form = () => {
     const values = [...educationList];
     values.splice(index, 1);
     setEducationList(values);
+  };
+
+  // Adding Children
+
+  const [childList, setChildList] = useState([{ value: "" }]);
+
+  const handleChildChange = (index, event) => {
+    const values = [...childList];
+    values[index].value = event.target.value;
+    setChildList(values);
+
+    console.log("child list :", childList);
+    console.log("child set value :", setChildList(values));
+  };
+
+  const handleAddChild = (e) => {
+    // e.preventDefault();
+    setChildList([...childList, { value: " " }]);
+  };
+
+  const handleRemoveChild = (index) => {
+    const values = [...childList];
+    values.splice(index, 1);
+    setChildList(values);
+
+    console.log("remove child :", setChildList(values));
   };
 
   //form Submit
@@ -119,7 +156,7 @@ const Form = () => {
         >
           Registration Form
         </Typography>
-        <form >
+        <form>
           <TextField
             className="name"
             label="Name :"
@@ -161,11 +198,12 @@ const Form = () => {
             required
           />
 
-          <div className={classes.bday_mobile}>
+          <Box className={classes.bday_mobile}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 name="birthday"
                 label="Birth-Date"
+                fullWidth
                 // value={formData.birthday}
                 // onChange={handleChange}
                 slotProps={{
@@ -186,37 +224,87 @@ const Form = () => {
               name="mobile"
               value={formData.mobile}
               onChange={handleChange}
+              fullWidth
               required
             />
-          </div>
-
-          <FormControl
-            name="gender"
-            className="gender"
-            value={formData.gender}
-            onChange={handleChange}
-          >
-            <FormLabel id="demo-row-radio-buttons-group-label" required>
-              Gender :
-            </FormLabel>
-            <RadioGroup
-              row
-              aria-labelledby="demo-row-radio-buttons-group-label"
-              name="row-radio-buttons-group"
+          </Box>
+          {/* Gender Image */}
+          <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <FormControl
+              name="gender"
+              className="gender"
+              value={formData.gender}
+              onChange={handleChange}
             >
-              <FormControlLabel
-                value="female"
-                control={<Radio />}
-                label="Female"
-              />
-              <FormControlLabel value="male" control={<Radio />} label="Male" />
-              <FormControlLabel
-                value="other"
-                control={<Radio />}
-                label="Other"
-              />
-            </RadioGroup>
-          </FormControl>
+              <FormLabel id="demo-row-radio-buttons-group-label" required>
+                Gender :
+              </FormLabel>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+              >
+                <FormControlLabel
+                  value="female"
+                  control={<Radio />}
+                  label="Female"
+                />
+                <FormControlLabel
+                  value="male"
+                  control={<Radio />}
+                  label="Male"
+                />
+                <FormControlLabel
+                  value="other"
+                  control={<Radio />}
+                  label="Other"
+                />
+              </RadioGroup>
+            </FormControl>
+
+            {formData.imageUrl ? (
+        <Box sx={{ display: 'flex', marginTop: '5px' }}>
+          <FileUploadOutlinedIcon
+            sx={{
+              marginRight: '8px',
+              fontSize: '20px',
+              color: "#1976d2" //blue
+            }}
+          />
+          <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {truncateUrl(formData.imageUrl, maxLength)}
+          </Typography>
+        </Box>
+      ) : (
+        <Button
+          variant="outlined"
+          component="label"
+          sx={{
+            marginTop: '10px',
+            position: 'relative',
+            height: '32px',
+            width: '175px',
+          }}
+        >
+          Upload Image
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleImageChange}
+          />
+          <FileUploadOutlinedIcon
+            sx={{
+              marginInline: '3px',
+              position: 'absolute',
+              fontSize: '18px',
+              right: '5px',
+              top: '5px',
+            }}
+          />
+        </Button>
+      )}
+          </Box>
 
           <div className={classes.parents}>
             <TextField
@@ -235,51 +323,46 @@ const Form = () => {
               label="Mother Name :"
               variant="standard"
               placeholder="Enter your Mother Name."
-              name="motherNames"
+              name="motherName"
               fullWidth
               value={formData.motherName}
               onChange={handleChange}
               required
             />
           </div>
-
-          {/* <TextField
-            className="edu"
-            label="Education"
-            variant="standard"
-            placeholder="Enter your Education"
-            name="education"
-            fullWidth
-            value={formData.education}
-            onChange={handleChange}
-            required
-          /> */}
-
+          {/* education */}
           {educationList.map((education, index) => (
-            <Box
-              key={index}
-              sx={{ display: "flex", alignItems: "center", marginBottom: 2 }}
-            >
+            <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
               <TextField
-                label={`Education ${index + 1}`}
+                // label={` Add Education ${index + 1}`}
+                label="Education"
                 value={education.value}
                 onChange={(event) => handleEducationChange(index, event)}
                 fullWidth
                 margin="normal"
                 variant="standard"
-                sx={{position: 'relative'}}
+                sx={{ position: "relative" }}
               />
-          
-              <IconButton onClick={handleAddField} aria-label="add">
+
+              <IconButton
+                onClick={handleAddField}
+                name="additionalEducation"
+                aria-label="add"
+                color="primary"
+                sx={{ paddingInline: "1px" }}
+              >
                 <AddCircleOutlineIcon />
               </IconButton>
               {educationList.length > 1 && (
-              <IconButton onClick={() => handleRemoveField(index)} aria-label="remove">
-                 <RemoveCircleOutlineIcon />
-              </IconButton>
+                <IconButton
+                  onClick={() => handleRemoveField(index)}
+                  aria-label="remove"
+                  color="error"
+                  sx={{ paddingInline: "1px" }}
+                >
+                  <RemoveCircleOutlineIcon />
+                </IconButton>
               )}
-              
-            
             </Box>
           ))}
 
@@ -293,16 +376,47 @@ const Form = () => {
             onChange={handleChange}
             fullWidth
           />
-          <TextField
-            className="cName"
-            label="Children's Name :"
-            variant="standard"
-            placeholder="Enter your Children Name."
-            name="childName"
-            fullWidth
-            value={formData.childName}
-            onChange={handleChange}
-          />
+          {/* children */}
+          {childList.map((child, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <TextField
+                // label={`Child ${index + 1} Name`}
+                label="Child"
+                variant="standard"
+                placeholder="Enter your Child's Name."
+                // name={`childName_${index}`}
+                fullWidth
+                value={child.value}
+                onChange={(e) => handleChildChange(index, e)}
+              />
+
+              <IconButton
+                onClick={() => handleAddChild()}
+                name="additionalChildren"
+                aria-label="Add"
+                color="primary"
+                sx={{ paddingInline: "1px" }}
+              >
+                <AddCircleOutlineIcon />
+              </IconButton>
+              {childList.length > 1 && (
+                <IconButton
+                  onClick={() => handleRemoveChild(index)}
+                  aria-label="Remove"
+                  color="error"
+                  sx={{ paddingInline: "1px" }}
+                >
+                  <RemoveCircleOutlineIcon />
+                </IconButton>
+              )}
+            </Box>
+          ))}
 
           <TextField
             className={classes.address}
@@ -312,24 +426,30 @@ const Form = () => {
             placeholder="Enter Your Address."
             value={formData.address}
             onChange={handleChange}
+            fullWidth
           />
-
           <div className={classes.city_pin}>
             <TextField
+              className="city"
               label="City :"
-              name="city"
               variant="standard"
-              className={classes.city}
+              placeholder="Enter your City"
+              name="city"
+              fullWidth
               value={formData.city}
               onChange={handleChange}
+              
             />
             <TextField
-              label="PIN :"
-              name="pin"
+              className="pin"
+              label="Pin :"
               variant="standard"
-              className={classes.pin}
+              placeholder="Enter your Pin."
+              name="pin"
+              fullWidth
               value={formData.pin}
               onChange={handleChange}
+              
             />
           </div>
 
@@ -342,6 +462,7 @@ const Form = () => {
               name="country"
               value={formData.country}
               onChange={handleChange}
+              fullWidth
               required
             />
             <TextField
@@ -352,6 +473,7 @@ const Form = () => {
               name="aadhar"
               value={formData.aadhar}
               onChange={handleChange}
+              fullWidth
               required
             />
           </div>
@@ -365,6 +487,7 @@ const Form = () => {
               name="job"
               value={formData.job}
               onChange={handleChange}
+              fullWidth
             />
             <TextField
               className="salary"
@@ -374,43 +497,17 @@ const Form = () => {
               name="salary"
               value={formData.salary}
               onChange={handleChange}
+              fullWidth
+
             />
           </div>
 
-          {/* <div className={classes.image}>
-            <Link variant="contained" component="label" sx={{ padding: "6px 50px", marginBlock: '5px' }}>
-              <FileUploadOutlinedIcon sx={{ marginInline: '3px' }} />
-              Upload Image
-              <input type="file" accept="image/*" hidden onChange={handleImageChange} />
-            </Link>
-            {selectedImage && (
-              <div mt={2}>
-                <img src={selectedImage} alt="Selected" />
-              </div>
-            )}
-          </div> */}
-
-          <Button variant="contained" component="label" sx={{ mt: 2 }}>
-            <FileUploadOutlinedIcon sx={{ marginInline: "3px" }} />
-            Upload Image
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handleImageChange}
-            />
-          </Button>
-          {formData.imageUrl && (
-            <Box sx={{ mt: 2 }}>
-              <img src={formData.imageUrl} alt="User" width="100%" />
-            </Box>
-          )}
           <Button
             className={classes.button}
             type="submit"
             variant="contained"
             size="medium"
-            sx={{ padding: "6px 50px", marginBlock: "5px" }}
+            sx={{ padding: "6px 50px", marginBlock: "15px" }}
             onClick={handleSubmit}
           >
             Submit
