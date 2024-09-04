@@ -20,6 +20,11 @@ const useStyles = makeStyles((theme) => ({
       padding: "15px 10px 5px 10px  ",
       height: "10px",
       width: '100%',
+
+     '& input:-webkit-autofill': {
+        backgroundColor: 'red  !important',/* Example: light cyan */
+        color: '#00695c !important', /* Example: dark green */
+      }
     }, 
     '& .css-953pxc-MuiInputBase-root-MuiInput-root':{
       marginTop: '5px',
@@ -52,7 +57,9 @@ const useStyles = makeStyles((theme) => ({
       },
       
     },
-    
+    '& input:-internal-autofill-selected ':{
+      backgroundColor: 'transparent ' ,
+    }
   },
     //Targeting Birth-date and mobile number
     bday_mobile: {

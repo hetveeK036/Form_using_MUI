@@ -7,7 +7,6 @@ import {
   Typography,
   TextField,
   Button,
-  MenuItem,
   IconButton,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -31,13 +30,15 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 
 const Form = () => {
   const classes = useStyles();
+  const navigate = useNavigate();
 
-  //Form Data
+ // state to manage form data
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    birthday: "",
+    // birthday: "",
+    birthday: dayjs().format("DD-MM-YYYY"), // Set default date format
     mobile: "",
     gender: "",
     fatherName: "",
@@ -57,94 +58,100 @@ const Form = () => {
     imageUrl: "",
   });
 
-  const navigate = useNavigate();
+  const [educationList, setEducationList] = useState([{ value: "" }]);
+  const [childList, setChildList] = useState([{ value: "" }]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+ // Handle input change for all fields expect education and children(dynamic fields).
+ const handleInputChange = (e) => {
+   const { name, value } = e.target;
+   setFormData({ ...formData, [name]: value }); // use spread operator it create a new object that contain all properties of formData
+   console.log("Form Data: ", formData);
+ };
+ // handle change of the Gender
+ const handleGenderChange = (e) => {
+   setFormData({ ...formData, gender: e.target.value });
+ };
+//    //Handle the change of BirthDay selection
+const handleDateChange = (date) => {
+  if (date && date.isValid()) {
+    setFormData({
+      ...formData,
+      birthday: date.format("DD-MM-YYYY"),
+    });
+  } else {
+    setFormData({
+      ...formData,
+      birthday: null,
+    });
+  }
+};
   // Set birth-date on value change.
   const [value, setValue] = useState(dayjs()); // Initialize with current date
 
-  // Set Image
-  // const [selectedImage, setSelectedImage] = useState(null);
-
-  const handleImageChange = (e) => {
+  //Handle image file upload and Preview URL
+const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setFormData({ ...formData, image: file, imageUrl });
     }
-  };
-  const truncateUrl = (url, length) => {
+};
+const truncateUrl = (url, length) => {
     if (url.length <= length) {
       return url;
     }
     const start = url.substring(0, length / 2);
     const end = url.substring(url.length - length / 2, url.length);
     return `${start}...${end}`;
+};
+const maxLength = 20; // maximum length of URL
+//Handle education Change
+const handleEducationChange = (index, event) => {
+  const values = [...educationList];
+  values[index].value = event.target.value;
+  setEducationList(values);
+};
+// Add a new education entry
+const handleAddField = () => {
+  setEducationList([...educationList, { value: " " }]);
+  console.log("added education name :", educationList.values)
+};
+// Remove education entry
+const handleRemoveField = (index) => {
+  const values = [...educationList];
+  values.splice(index, 1);
+  setEducationList(values);
+};
+//Handle Children change  of each entry
+const handleChildChange = (index, event) => {
+  const values = [...childList];
+  values[index].value = event.target.value;
+  setChildList(values);
+};
+// Add child entry
+const handleAddChild = () => {
+  setChildList([...childList, { value: " " }]);
+};
+// remove child entry
+const handleRemoveChild = (index) => {
+  const values = [...childList];
+  values.splice(index, 1);
+  setChildList(values);
+};
+// Handle form submission store data in local storage
+const handleSubmit = (e) => {
+  e.preventDefault();
+  const updatedFormData = {
+    ...formData,
+    education: educationList.map((item) => item.value),
+    children: childList.map((item) => item.value),
   };
-  const maxLength = 20; // maximum length of URL
-  //input name
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  // Adding Education
-  const [educationList, setEducationList] = useState([{ value: "" }]);
-  const handleEducationChange = (index, event) => {
-    const values = [...educationList];
-    values[index].value = event.target.value;
-    setEducationList(values);
-
-    console.log("education list :", educationList);
-    console.log("education set value :", setEducationList(values));
-  };
-
-  const handleAddField = (e) => {
-    e.preventDefault();
-    setEducationList([...educationList, { value: "" }]);
-  };
-
-  const handleRemoveField = (index) => {
-    const values = [...educationList];
-    values.splice(index, 1);
-    setEducationList(values);
-  };
-
-  // Adding Children
-
-  const [childList, setChildList] = useState([{ value: "" }]);
-
-  const handleChildChange = (index, event) => {
-    const values = [...childList];
-    values[index].value = event.target.value;
-    setChildList(values);
-
-    console.log("child list :", childList);
-    console.log("child set value :", setChildList(values));
-  };
-
-  const handleAddChild = (e) => {
-    // e.preventDefault();
-    setChildList([...childList, { value: " " }]);
-  };
-
-  const handleRemoveChild = (index) => {
-    const values = [...childList];
-    values.splice(index, 1);
-    setChildList(values);
-
-    console.log("remove child :", setChildList(values));
-  };
-
-  //form Submit
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    localStorage.setItem("user", JSON.stringify(formData));
-    navigate("/login");
-  };
+  localStorage.setItem("user : ", JSON.stringify(updatedFormData));
+  console.log("formData  = ", formData.v)
+  setFormData(" ")
+  // navigate to the login page on submit of form
+  navigate("/login");
+};
 
   return (
     <Container className={classes.container} maxWidth="sm">
@@ -166,7 +173,6 @@ const Form = () => {
             name="name"
             fullWidth
             value={formData.name}
-            // onChange={handleChange}
             onChange={handleInputChange}
             required
           />
@@ -180,7 +186,7 @@ const Form = () => {
             name="email"
             fullWidth
             value={formData.email}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
           <TextField
@@ -194,10 +200,10 @@ const Form = () => {
             autoComplete="current-password"
             fullWidth
             value={formData.password}
-            onChange={handleChange}
+            onChange={handleInputChange}
             required
           />
-
+          {/* Birth-day and mobile no  */}
           <Box className={classes.bday_mobile}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
@@ -205,7 +211,8 @@ const Form = () => {
                 label="Birth-Date"
                 fullWidth
                 // value={formData.birthday}
-                // onChange={handleChange}
+                value={dayjs(formData.birthday, "DD-MM-YYYY")}
+                onChange={handleDateChange}
                 slotProps={{
                   textField: {
                     label: "Birth-Date :",
@@ -223,26 +230,24 @@ const Form = () => {
               placeholder="Enter your Mobile No."
               name="mobile"
               value={formData.mobile}
-              onChange={handleChange}
+              onChange={handleInputChange}
               fullWidth
               required
             />
           </Box>
-          {/* Gender Image */}
+          {/* Gender and Image */}
           <Box sx={{ display: "flex", flexDirection: "row" }}>
             <FormControl
               name="gender"
               className="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            >
-              <FormLabel id="demo-row-radio-buttons-group-label" required>
-                Gender :
-              </FormLabel>
+              >
+              <FormLabel required>Gender :</FormLabel>
               <RadioGroup
                 row
                 aria-labelledby="demo-row-radio-buttons-group-label"
                 name="row-radio-buttons-group"
+                value={formData.gender}
+                onChange={handleGenderChange}
               >
                 <FormControlLabel
                   value="female"
@@ -262,48 +267,48 @@ const Form = () => {
               </RadioGroup>
             </FormControl>
 
-            {formData.imageUrl ? (
-        <Box sx={{ display: 'flex', marginTop: '5px' }}>
-          <FileUploadOutlinedIcon
-            sx={{
-              marginRight: '8px',
-              fontSize: '20px',
-              color: "#1976d2" //blue
-            }}
-          />
-          <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {truncateUrl(formData.imageUrl, maxLength)}
-          </Typography>
-        </Box>
-      ) : (
-        <Button
-          variant="outlined"
-          component="label"
-          sx={{
-            marginTop: '10px',
-            position: 'relative',
-            height: '32px',
-            width: '175px',
-          }}
-        >
-          Upload Image
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleImageChange}
-          />
-          <FileUploadOutlinedIcon
-            sx={{
-              marginInline: '3px',
-              position: 'absolute',
-              fontSize: '18px',
-              right: '5px',
-              top: '5px',
-            }}
-          />
-        </Button>
-      )}
+        {formData.imageUrl ? (
+          <Box sx={{ display: 'flex', marginTop: '15px' }}>
+            <FileUploadOutlinedIcon
+              sx={{
+                marginRight: '8px',
+                fontSize: '20px',
+                color: "#1976d2" //blue
+              }}
+            />
+            <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {truncateUrl(formData.imageUrl, maxLength)}
+            </Typography>
+          </Box>
+         ) : (
+            <Button
+              variant="outlined"
+              component="label"
+              sx={{
+                marginTop: '10px',
+                position: 'relative',
+                height: '32px',
+                width: '175px',
+              }}
+            >
+              Upload Image
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleImageChange}
+              />
+              <FileUploadOutlinedIcon
+                sx={{
+                  marginInline: '3px',
+                  position: 'absolute',
+                  fontSize: '18px',
+                  right: '5px',
+                  top: '5px',
+                }}
+              />
+            </Button>
+          )}
           </Box>
 
           <div className={classes.parents}>
@@ -315,7 +320,8 @@ const Form = () => {
               name="fatherName"
               fullWidth
               value={formData.fatherName}
-              onChange={handleChange}
+              onChange={handleInputChange}
+
               required
             />
             <TextField
@@ -326,7 +332,7 @@ const Form = () => {
               name="motherName"
               fullWidth
               value={formData.motherName}
-              onChange={handleChange}
+              onChange={handleInputChange}
               required
             />
           </div>
@@ -334,10 +340,9 @@ const Form = () => {
           {educationList.map((education, index) => (
             <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
               <TextField
-                // label={` Add Education ${index + 1}`}
                 label="Education"
                 value={education.value}
-                onChange={(event) => handleEducationChange(index, event)}
+                onChange={(event) => handleEducationChange(index, event) }
                 fullWidth
                 margin="normal"
                 variant="standard"
@@ -373,7 +378,7 @@ const Form = () => {
             placeholder="Enter your Spouse Name."
             name="spouseName"
             value={formData.spouseName}
-            onChange={handleChange}
+            onChange={handleInputChange}            
             fullWidth
           />
           {/* children */}
@@ -386,11 +391,10 @@ const Form = () => {
               }}
             >
               <TextField
-                // label={`Child ${index + 1} Name`}
                 label="Child"
                 variant="standard"
                 placeholder="Enter your Child's Name."
-                // name={`childName_${index}`}
+                // name={childName_${index}}
                 fullWidth
                 value={child.value}
                 onChange={(e) => handleChildChange(index, e)}
@@ -425,7 +429,7 @@ const Form = () => {
             variant="standard"
             placeholder="Enter Your Address."
             value={formData.address}
-            onChange={handleChange}
+            onChange={handleInputChange}
             fullWidth
           />
           <div className={classes.city_pin}>
@@ -437,8 +441,7 @@ const Form = () => {
               name="city"
               fullWidth
               value={formData.city}
-              onChange={handleChange}
-              
+              onChange={handleInputChange}           
             />
             <TextField
               className="pin"
@@ -448,8 +451,7 @@ const Form = () => {
               name="pin"
               fullWidth
               value={formData.pin}
-              onChange={handleChange}
-              
+              onChange={handleInputChange}
             />
           </div>
 
@@ -461,7 +463,7 @@ const Form = () => {
               placeholder="Enter Your Country"
               name="country"
               value={formData.country}
-              onChange={handleChange}
+              onChange={handleInputChange}
               fullWidth
               required
             />
@@ -472,12 +474,11 @@ const Form = () => {
               placeholder="Enter Your Aadhar Number"
               name="aadhar"
               value={formData.aadhar}
-              onChange={handleChange}
+              onChange={handleInputChange}
               fullWidth
               required
             />
           </div>
-
           <div className={classes.job_salary}>
             <TextField
               className="job"
@@ -486,7 +487,7 @@ const Form = () => {
               placeholder="Enter Your Profession"
               name="job"
               value={formData.job}
-              onChange={handleChange}
+              onChange={handleInputChange}
               fullWidth
             />
             <TextField
@@ -496,9 +497,8 @@ const Form = () => {
               placeholder="Enter Your Salary"
               name="salary"
               value={formData.salary}
-              onChange={handleChange}
+              onChange={handleInputChange}
               fullWidth
-
             />
           </div>
 
