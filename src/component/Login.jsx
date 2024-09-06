@@ -70,9 +70,9 @@ const LoginForm = () => {
               
             <AccountCircleOutlinedIcon  sx={{
                  position: 'absolute',
-                 right: '345px',
-                 top: '16%',
                  color: 'dimgray',
+                 right: '36%',
+                
             }}/>
             <div className={ classes.userIcon}>
             </div>

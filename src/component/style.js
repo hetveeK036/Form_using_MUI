@@ -59,7 +59,11 @@ const useStyles = makeStyles((theme) => ({
     },
     '& input:-internal-autofill-selected ':{
       backgroundColor: 'transparent ' ,
+    },
+    '& .css-1kuq5xv-MuiButtonBase-root-MuiIconButton-root, .css-1jo1f9u-MuiButtonBase-root-MuiIconButton-root': {
+      padding:'1px',
     }
+
   },
     //Targeting Birth-date and mobile number
     bday_mobile: {

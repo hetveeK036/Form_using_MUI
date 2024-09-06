@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useStyles from "./style.js";
 import {
@@ -31,6 +31,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 const Form = () => {
   const classes = useStyles();
   const navigate = useNavigate();
+  const [educationList, setEducationList] = useState([{ degree: "", institution: "" }]);
+  const [childList, setChildList] = useState([{ value: "" }]);
 
  // state to manage form data
   const [formData, setFormData] = useState({
@@ -43,10 +45,8 @@ const Form = () => {
     gender: "",
     fatherName: "",
     motherName: "",
-    education: "",
-    additionalEducation: "",
-    children: "",
-    additionalChildren: "",
+    education:  [{ degree: "", institution: "" }],
+    children: [{value: " "}],
     address: "",
     city: "",
     pin: "",
@@ -58,8 +58,6 @@ const Form = () => {
     imageUrl: "",
   });
 
-  const [educationList, setEducationList] = useState([{ value: "" }]);
-  const [childList, setChildList] = useState([{ value: "" }]);
 
  // Handle input change for all fields expect education and children(dynamic fields).
  const handleInputChange = (e) => {
@@ -85,8 +83,6 @@ const handleDateChange = (date) => {
     });
   }
 };
-  // Set birth-date on value change.
-  const [value, setValue] = useState(dayjs()); // Initialize with current date
 
   //Handle image file upload and Preview URL
 const handleImageChange = (e) => {
@@ -105,23 +101,29 @@ const truncateUrl = (url, length) => {
     return `${start}...${end}`;
 };
 const maxLength = 20; // maximum length of URL
+
 //Handle education Change
-const handleEducationChange = (index, event) => {
-  const values = [...educationList];
-  values[index].value = event.target.value;
-  setEducationList(values);
+const handleEducationChange = (index, field, event) => {
+  const newEducationList = [...educationList];
+  newEducationList[index][field] = event.target.value; // Update degree or institution field
+  setEducationList(newEducationList);
 };
 // Add a new education entry
 const handleAddField = () => {
-  setEducationList([...educationList, { value: " " }]);
-  console.log("added education name :", educationList.values)
+  // setEducationList([...educationList, { degree: "", institution: "" }]);
+  const newEducationList = [...educationList, { degree: "", institution: "" }];
+  setEducationList(newEducationList);
+  console.log("Updated Education List:", newEducationList); 
 };
+
 // Remove education entry
 const handleRemoveField = (index) => {
-  const values = [...educationList];
-  values.splice(index, 1);
-  setEducationList(values);
+  const newEducationList = [...educationList];
+  newEducationList.splice(index, 1);
+  setEducationList(newEducationList);
+  console.log("Updated Education List after Removal :",newEducationList)
 };
+
 //Handle Children change  of each entry
 const handleChildChange = (index, event) => {
   const values = [...childList];
@@ -130,28 +132,43 @@ const handleChildChange = (index, event) => {
 };
 // Add child entry
 const handleAddChild = () => {
-  setChildList([...childList, { value: " " }]);
+  // setChildList([...childList, { value: " " }]);
+  const newChildList = [...childList, {value: " "}];
+  setChildList(newChildList);
+  console.log("Updated Children List:", newChildList); 
 };
 // remove child entry
 const handleRemoveChild = (index) => {
-  const values = [...childList];
-  values.splice(index, 1);
-  setChildList(values);
+  const newChildList = [...childList];
+  newChildList.splice(index, 1);
+  setChildList(newChildList);
+  console.log("Updated Education List after Removal :", newChildList); 
 };
 // Handle form submission store data in local storage
 const handleSubmit = (e) => {
   e.preventDefault();
+  // const updatedFormData = {
+  //   ...formData,
+  //   education: educationList.map((item) => item.value),
+  //   children: childList.map((item) => item.value),
+  // };
   const updatedFormData = {
     ...formData,
-    education: educationList.map((item) => item.value),
-    children: childList.map((item) => item.value),
+    education: educationList, // No need to map, just use the array as is
+    children: childList, // No need to map, just use the array as is
   };
-  localStorage.setItem("user : ", JSON.stringify(updatedFormData));
-  console.log("formData  = ", formData.v)
+   // Store updated form data in localStorage
+  localStorage.setItem("user Data : ", JSON.stringify(updatedFormData));
+  console.log("formData  = ", formData)
   setFormData(" ")
+
   // navigate to the login page on submit of form
-  navigate("/login");
+  navigate("/home");
 };
+
+
+
+
 
   return (
     <Container className={classes.container} maxWidth="sm">
@@ -336,40 +353,8 @@ const handleSubmit = (e) => {
               required
             />
           </div>
-          {/* education */}
-          {educationList.map((education, index) => (
-            <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
-              <TextField
-                label="Education"
-                value={education.value}
-                onChange={(event) => handleEducationChange(index, event) }
-                fullWidth
-                margin="normal"
-                variant="standard"
-                sx={{ position: "relative" }}
-              />
+     
 
-              <IconButton
-                onClick={handleAddField}
-                name="additionalEducation"
-                aria-label="add"
-                color="primary"
-                sx={{ paddingInline: "1px" }}
-              >
-                <AddCircleOutlineIcon />
-              </IconButton>
-              {educationList.length > 1 && (
-                <IconButton
-                  onClick={() => handleRemoveField(index)}
-                  aria-label="remove"
-                  color="error"
-                  sx={{ paddingInline: "1px" }}
-                >
-                  <RemoveCircleOutlineIcon />
-                </IconButton>
-              )}
-            </Box>
-          ))}
 
           <TextField
             className="sName"
@@ -382,7 +367,7 @@ const handleSubmit = (e) => {
             fullWidth
           />
           {/* children */}
-          {childList.map((child, index) => (
+          {childList.map((children, index) => (
             <Box
               key={index}
               sx={{
@@ -396,10 +381,9 @@ const handleSubmit = (e) => {
                 placeholder="Enter your Child's Name."
                 // name={childName_${index}}
                 fullWidth
-                value={child.value}
+                value={children.value}
                 onChange={(e) => handleChildChange(index, e)}
               />
-
               <IconButton
                 onClick={() => handleAddChild()}
                 name="additionalChildren"
@@ -421,6 +405,74 @@ const handleSubmit = (e) => {
               )}
             </Box>
           ))}
+        {/* education */}
+          {/* {educationList.map((education, index) => (
+            <Box key={index} sx={{ display: "flex", alignItems: "center" }}>
+              <TextField
+                label="Education"
+                value={education.value}
+                onChange={(event) => handleEducationChange(index, event) }
+                fullWidth
+                margin="normal"
+                variant="standard"
+                sx={{ position: "relative" }}
+              />
+              <IconButton
+                onClick={handleAddField}
+                name="additionalEducation"
+                aria-label="add"
+                color="primary"
+                sx={{ paddingInline: "1px" }}
+              >
+                <AddCircleOutlineIcon />
+              </IconButton>
+              {educationList.length > 1 && (
+                <IconButton
+                  onClick={() => handleRemoveField(index)}
+                  aria-label="remove"
+                  color="error"
+                  sx={{ paddingInline: "1px" }}
+                >
+                  <RemoveCircleOutlineIcon />
+                </IconButton>
+              )}
+            </Box>
+          ))} */}
+          {/* Education Fields with Degree and Institution */}
+          {educationList.map((education, index) => (
+            <Box key={index} sx={{ display: "flex", flexDirection: "row", position: 'relative' }}>
+              <Box sx={{display: 'flex', gap: '25px', width: '90%'}}>
+                <TextField
+                label="Degree"
+                value={education.degree}
+                onChange={(event) => handleEducationChange(index, "degree", event)}
+                fullWidth
+                margin="normal"
+                variant="standard"
+              />
+              <TextField
+                label="Institution / University"
+                value={education.institution}
+                onChange={(event) => handleEducationChange(index, "institution", event)}
+                fullWidth
+                margin="normal"
+                variant="standard"
+              />
+              </Box>
+
+              <Box sx={{ position:'absolute', bottom: '10px', right: '1px'}}>
+                <IconButton onClick={handleAddField} color="primary">
+                  <AddCircleOutlineIcon /> 
+                </IconButton>
+                {educationList.length > 1 && (
+                  <IconButton onClick={() => handleRemoveField(index)} color="error">
+                    <RemoveCircleOutlineIcon />
+                  </IconButton>
+                )}
+              </Box>
+            </Box>
+          ))}
+      
 
           <TextField
             className={classes.address}
