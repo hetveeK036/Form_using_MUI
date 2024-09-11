@@ -15,6 +15,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@toolpad/core": "^0.5.2",
+    "axios": "^1.7.7",
     "dayjs": "^1.11.13",
     "form_mui": "file:",
     "mui": "^0.0.1",
@@ -23,6 +24,7 @@
     "react-router-dom": "^6.26.1",
     "react-scripts": "5.0.1",
     "styled-components": "^6.1.12",
+    "use-debounce": "^10.0.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

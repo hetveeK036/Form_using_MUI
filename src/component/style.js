@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
 
     // Targeting the root of the TextField to give margin and height
-    "& .MuiTextField-root": {
+    "& .MuiTextField-root, .css-q8hpuo-MuiFormControl-root": {
       margin: "5px 0 3px 0",
     },
 
@@ -62,6 +62,21 @@ const useStyles = makeStyles((theme) => ({
     },
     '& .css-1kuq5xv-MuiButtonBase-root-MuiIconButton-root, .css-1jo1f9u-MuiButtonBase-root-MuiIconButton-root': {
       padding:'1px',
+    },
+    // Targeting checked box hobby
+    '& .label+.css-ggo0ma-MuiInputBase-root-MuiInput-root-MuiSelect-root, label+.css-ggo0ma-MuiInputBase-root-MuiInput-root-MuiSelect-root':{
+        marginTop: '0px',
+
+      '& .css-i4bv87-MuiSvgIcon-root ':{
+        fontSize: '20px',
+      },
+      '& .css-1rxz5jq-MuiSelect-select-MuiInputBase-input-MuiInput-input:focus  ':{
+        backgroundColor: 'transparent !important' ,
+        textAlign: 'left !important',
+      },
+      '.css-1rxz5jq-MuiSelect-select-MuiInputBase-input-MuiInput-input.MuiSelect-select ':{
+        minHeight: 'unset !important',
+      }
     }
 
   },

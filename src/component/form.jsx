@@ -1,5 +1,7 @@
-import React, {  useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useDebounce from "./use-debounce.js";
+import axios from 'axios';
 import useStyles from "./style.js";
 import {
   Container,
@@ -8,6 +10,11 @@ import {
   TextField,
   Button,
   IconButton,
+  Select,
+  MenuItem,
+  Checkbox,
+  ListItemText,
+  InputLabel,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -23,6 +30,7 @@ import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import dayjs from "dayjs";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import SelectInput from "@mui/material/Select/SelectInput.js";
 // const DAYJS_CODEC = {
 //   parse: (dateString) => dayjs(dateString),
 //   stringify: (date) => date.toISOString(),
@@ -33,12 +41,14 @@ const Form = () => {
   const navigate = useNavigate();
   const [educationList, setEducationList] = useState([{ degree: "", institution: "" }]);
   const [childList, setChildList] = useState([{ value: "" }]);
+  const [hobbyName, setHobbyName] = useState([]) // used for Hobby
 
  // state to manage form data
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    cPassword: "",
     // birthday: "",
     birthday: dayjs().format("DD-MM-YYYY"), // Set default date format
     mobile: "",
@@ -57,19 +67,46 @@ const Form = () => {
     image: null,
     imageUrl: "",
   });
-
-
+const Hobby = [
+    'Reading',
+    'Cooking',
+    'Traveling',
+    'Photography',
+    'Watching Movies/Series',
+    'Cycling',
+    'Tracking',
+    'Drawing',
+    'Singing',
+    'Dancing',
+    'Writing',
+    'Crafting',
+    'Learning new things',
+    'Acting',
+    'Gardening',
+  ]
+  const debouncedFormData = useDebounce(formData, 1200);
  // Handle input change for all fields expect education and children(dynamic fields).
  const handleInputChange = (e) => {
    const { name, value } = e.target;
    setFormData({ ...formData, [name]: value }); // use spread operator it create a new object that contain all properties of formData
-   console.log("Form Data: ", formData);
+  //  console.log("Form Data: ", formData);
+
+  if (name === "hobby") {
+    setHobbyName(
+      typeof value === 'string' ? value.split(',') : value
+    );
+  }
  };
- // handle change of the Gender
+ useEffect(() => {
+  console.log("Debounced Form Data: ", debouncedFormData);
+}, [debouncedFormData]);
+
+
+// handle change of the Gender
  const handleGenderChange = (e) => {
    setFormData({ ...formData, gender: e.target.value });
  };
-//    //Handle the change of BirthDay selection
+//Handle the change of BirthDay selection
 const handleDateChange = (date) => {
   if (date && date.isValid()) {
     setFormData({
@@ -83,8 +120,7 @@ const handleDateChange = (date) => {
     });
   }
 };
-
-  //Handle image file upload and Preview URL
+//Handle image file upload and Preview URL
 const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -101,7 +137,6 @@ const truncateUrl = (url, length) => {
     return `${start}...${end}`;
 };
 const maxLength = 20; // maximum length of URL
-
 //Handle education Change
 const handleEducationChange = (index, field, event) => {
   const newEducationList = [...educationList];
@@ -115,7 +150,6 @@ const handleAddField = () => {
   setEducationList(newEducationList);
   console.log("Updated Education List:", newEducationList); 
 };
-
 // Remove education entry
 const handleRemoveField = (index) => {
   const newEducationList = [...educationList];
@@ -157,13 +191,46 @@ const handleSubmit = (e) => {
     education: educationList, // No need to map, just use the array as is
     children: childList, // No need to map, just use the array as is
   };
+  const formDataToSend = new FormData();
+  for (const [key, value] of Object.entries(updatedFormData)) {
+    if (key === 'image' && value) {
+      formDataToSend.append(key, value); // Append file directly
+    } else if (Array.isArray(value)) {
+      formDataToSend.append(key, JSON.stringify(value)); // Append array as JSON string
+    } else {
+      formDataToSend.append(key, value);
+    }
+  }
+  // Send form data to the backend
+  axios
+    .post("http://localhost:8081/form", formDataToSend, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((res) => {
+      console.log("Response from server: ", res.data);
+      if (res.data === "Success") {
+        alert("Form Data Successfully Uploaded");
+      } else {
+        alert("Error");
+      }
+    // navigate to the login page on submit of form
+      navigate("/home");
+    })
+    .catch((err) => {
+      console.log("There was an error! = ", err);
+    });
+
+
    // Store updated form data in localStorage
   localStorage.setItem("user Data : ", JSON.stringify(updatedFormData));
   console.log("formData  = ", formData)
-  setFormData(" ")
-
-  // navigate to the login page on submit of form
-  navigate("/home");
+  console.log("Form data submitted: ", updatedFormData);
+  
+  // Clear form data (if needed)
+  setFormData({ })
+ 
 };
 
 
@@ -217,6 +284,20 @@ const handleSubmit = (e) => {
             autoComplete="current-password"
             fullWidth
             value={formData.password}
+            onChange={handleInputChange}
+            required
+          />
+          <TextField
+            className="cpass"
+            label="Confirm Password"
+            variant="standard"
+            type="password"
+            margin="none"
+            placeholder="Enter your Password."
+            name="cPassword"
+            autoComplete="current-password"
+            fullWidth
+            value={formData.cPassword}
             onChange={handleInputChange}
             required
           />
@@ -553,6 +634,24 @@ const handleSubmit = (e) => {
               fullWidth
             />
           </div>
+          <FormControl fullWidth variant="standard">
+          <InputLabel id="demo-multiple-checkbox-label">Hobby :</InputLabel>
+              <Select
+                name="hobby"
+                multiple
+                sx= {{marginTop: '0px'}}
+                value={hobbyName} // use formData to track the hobby value 
+                 onChange={handleInputChange}
+                 renderValue={(selected) => selected.join(', ')}
+                 >
+                {Hobby.map((hobby, index) => (
+                  <MenuItem key={index} value = {hobby} sx={{height:'25px', marginTop: '0px'}}>
+                    <Checkbox  checked={hobbyName.indexOf(hobby)> -1 }/>
+                      <ListItemText primary={hobby} sx={{backgroundColor: 'transparent', minHeight: 'unset'}}/>
+                  </MenuItem>
+                ))}
+              </Select>
+          </FormControl>
 
           <Button
             className={classes.button}
@@ -565,6 +664,7 @@ const handleSubmit = (e) => {
             Submit
           </Button>
         </form>
+
       </Box>
     </Container>
   );
